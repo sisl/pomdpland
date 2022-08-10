@@ -89,7 +89,7 @@
     \includegraphics[width=\columnwidth]{pomdpland-small.jpeg}
 \end{frame}
 
-\begin{frame}{POMDP definition}
+\begin{frame}{Sequential decision problems}
 \begin{center}
     \begin{tikzpicture}
         \node [block,minimum width=3cm,minimum height=1cm] (env) {Environment};
@@ -106,7 +106,7 @@
         Symbol & Description & Example \\ \midrule
         $\mathcal S$ & states & hungry ($h$), not hungry ($\neg h$)\\
         $\mathcal A$ & actions & feed ($f$), not feed ($\neg f$)\\
-        $\mathcal O$ & observations & crying ($c$), not hungry ($\neg c$)\\ \midrule
+        $\mathcal O$ & observations & crying ($c$), not crying ($\neg c$)\\ \midrule
         $T(s' \mid s, a)$ & transition model & $T(h \mid \neg h, \neg f) = 0.2$\\
         $R(s, a)$ & reward model & $R(h, f) = -6$ \\
         $O(o \mid a, s')$ & observation model & $P(c \mid \neg f, h) = 0.9$ \\
