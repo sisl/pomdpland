@@ -1,0 +1,680 @@
+\documentclass{beamer}
+
+\usepackage[per-mode=symbol,group-digits=integer,group-minimum-digits=4,group-separator={,},mode=math]{siunitx}
+
+\usepackage{vector}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz,pgfplots}
+\usepackage{optidef}
+
+\renewcommand{\vec}[1]{\vect{#1}}
+\newcommand{\mat}[1]{\vect{#1}}
+\newcommand{\argmin}{\operatornamewithlimits{arg\,min}}
+\newcommand{\argmax}{\operatornamewithlimits{arg\,max}}
+\usetikzlibrary{calc}
+\newcommand{\transpose}{\top}
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{patterns}
+\usetikzlibrary{graphs}
+% \usetikzlibrary{graphdrawing}
+\usetikzlibrary{shapes}
+\tikzset{every picture/.style={semithick, >=stealth'}}
+\tikzstyle{block}=[draw,rounded corners]
+
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\paren}{\lparen}{\rparen}
+\DeclarePairedDelimiter{\brock}{\lbrack}{\rbrack}
+\DeclarePairedDelimiter{\curly}{\{}{\}}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\anglebrackets}{\langle}{\rangle}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\DeclarePairedDelimiter{\nearestint}{\lfloor}{\rceil}
+\DeclarePairedDelimiter{\card}{|}{|}
+
+
+\usepgfplotslibrary{fillbetween}
+\usepgfplotslibrary{groupplots}
+\usepgfplotslibrary{patchplots}
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{ternary}
+
+
+\pgfplotsset{compat=newest}
+\pgfplotsset{every axis legend/.append style={legend cell align=left, font=\footnotesize, draw=none, fill=none}}
+\pgfplotsset{every axis/.append style={axis on top,axis background/.style={fill=white}}}
+
+\tikzstyle{solid_line}=[solid, thick, mark=none]
+\tikzset{every picture/.style={semithick, >=stealth'}}
+\tikzset{myline/.style={line width = 0.05cm, rounded corners=5mm}}
+\tikzset{myarrow/.style={line width = 0.05cm, ->, rounded corners=5mm}}
+\tikzset{myaxis/.style={thick, ->, line cap=rect}}
+\tikzset{roundednode/.style={rounded corners=4mm,draw=black,fill=white,line width=0.05cm, minimum size=0.35in, align=center}}
+
+\input{colors.tex}
+
+
+\beamertemplatenavigationsymbolsempty
+
+\newcommand{\pomdpland}[4]{
+    \begin{frame}
+        \centering
+        \begin{tikzpicture}
+            \node[anchor=south west,inner sep=0] at (0,0) {\includegraphics[width=\columnwidth]{pomdpland-small.jpeg}};
+            \draw[red,ultra thick,rounded corners] (#1,#2) rectangle (#3,#4);
+        \end{tikzpicture}
+    
+    \end{frame}
+}
+
+\title{A tour of Pomdpland}
+\subtitle{Algorithms for sequential decision making under uncertainty}
+\author{Mykel J. Kochenderfer}
+\institute{Stanford University}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}
+    \includegraphics[width=\columnwidth]{pomdpland-small.jpeg}
+\end{frame}
+
+\begin{frame}{POMDP definition}
+\begin{center}
+    \begin{tikzpicture}
+        \node [block,minimum width=3cm,minimum height=1cm] (env) {Environment};
+        \node [block,minimum width=3cm,minimum height=1cm,right=of env] (ag) {Agent};
+        \path [->,bend left=45] (env) edge node [above] {Observation ($o_t$)} (ag);
+        \path [->,bend left=45] (ag) edge node [below] {Action ($a_t$)} (env);
+        \end{tikzpicture}
+\end{center}    
+\end{frame}
+
+\begin{frame}{POMDP definition}
+    \centering
+    \begin{tabular}{@{}lll@{}} \toprule
+        Symbol & Description & Example \\ \midrule
+        $\mathcal S$ & states & hungry ($h$), not hungry ($\neg h$)\\
+        $\mathcal A$ & actions & feed ($f$), not feed ($\neg f$)\\
+        $\mathcal O$ & observations & crying ($c$), not hungry ($\neg c$)\\ \midrule
+        $T(s' \mid s, a)$ & transition model & $T(h \mid \neg h, \neg f) = 0.2$\\
+        $R(s, a)$ & reward model & $R(h, f) = -6$ \\
+        $O(o \mid a, s')$ & observation model & $P(c \mid \neg f, h) = 0.9$ \\
+        \bottomrule
+    \end{tabular}   
+\end{frame}
+
+\begin{frame}{POMDP derived functions}
+    \centering
+    \begin{tabular}{@{}lll@{}}
+        \toprule
+        Symbol & Description \\ \midrule
+        $b(s)$ & belief \\
+        $U(b)$ & utility (or value) function \\
+        $\pi(b)$ & policy \\        
+        \bottomrule
+    \end{tabular}
+\end{frame}
+
+
+\begin{frame}{Applications}
+    \begin{enumerate}
+        \item Aircraft collision avoidance
+        \item Automated driving
+        \item Breast cancer screening
+        \item Financial consumption and portfolio allocation
+        \item Distributed wildfire surveillance
+        \item Mars science exploration
+    \end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Contributing disciplines}
+    \begin{enumerate}
+        \item Economics
+        \item Psychology
+        \item Neuroscience
+        \item Computer science
+        \item Engineering
+        \item Mathematics
+        \item Operations research
+    \end{enumerate}
+\end{frame}
+
+\pomdpland{5.4}{1.5}{8}{3.5}
+
+\begin{frame}{Beliefs}
+    \begin{itemize}
+        \item Discrete probability distribution (e.g., $\vec b = [0.2, 0.8]$)
+        \item Parameters of a distribution (e.g., $b \sim \mathcal{N}(\vec \mu, \mat \Sigma)$)
+        \item Collection of particles (e.g., $[3.4, 2.2, 9.6]$)
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}{Belief updating}
+    \begin{itemize}
+        \item How do update our belief $b$ given that we took action $a$ and observed $o$?
+
+        \item Bayes' rule tells us how to do this:
+        \[b'(s') = O(o \mid a, s') \sum_{s} T(s' \mid s, a)b(s)\]
+        
+        \item We can use different approaches to define $b' = \text{Update}(b, a, o)$
+
+        \begin{itemize}
+            \item Discrete state filter
+            \item Kalman filter
+            \item Extended Kalman filter
+            \item Unscented Kalman filter
+            \item Particle filter
+        \end{itemize}
+
+    \end{itemize}
+
+\end{frame}
+
+\pomdpland{1}{2.6}{5}{4.2}
+
+\begin{frame}{Linear policies}
+    \begin{itemize}
+        \item $\pi(b) = \mat{A} \hat{\vec{s}}$ where $\hat{\vec{s}}$ is the most likely state according to $b$
+        \item Optimal for some problems (e.g., linear quadradic Gaussian)
+        \item Good approximation for many other problems
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Neural network policies}
+    \begin{itemize}
+        \item Handles very high dimensional problems (e.g., image inputs)
+        \item Can use sequence of observations instead of beliefs
+        \item May use LSTM, GRU, transformer architectures for tracking relevant past information
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional plans}
+    Represent action to given any possible sequence of observations, up to some horizon
+
+	\begin{center}
+        \begin{tikzpicture}[>=stealth]
+            \node (a1) at (0,0) {ignore};
+            \node[anchor=west] (a2c) at (4, 1) {feed};
+            \node[anchor=west] (a2n) at (4,-1) {ignore};
+            \node[anchor=west] (a3cc) at (8, 1.5) {feed};
+            \node[anchor=west] (a3nc) at (8, 0.5) {ignore};
+            \node[anchor=west] (a3cn) at (8,-0.5) {feed};
+            \node[anchor=west] (a3nn) at (8,-1.5) {ignore};
+            \draw[->] (a1) [out=0,in=180] to (a2c);
+            \node[rotate=30] at ($(a1)!0.55!(a2c) + (-0.1,0.25)$) {crying};
+            \draw[->] (a1) [out=0,in=180] to (a2n);
+            \node[rotate=-30] at ($(a1)!0.55!(a2n) - (0.3,0.2)$) {quiet};
+    
+            \draw[->] (a2c) [out=0,in=180] to (a3cc);
+            \node[rotate=15] at ($(a2c)!0.55!(a3cc) + (-0.2,0.27)$) {crying};
+            \draw[->] (a2c) [out=0,in=180] to (a3nc);
+            \node[rotate=-16] at ($(a2c)!0.55!(a3nc) - (0.2,0.25)$) {quiet};
+            \draw[->] (a2n) [out=0,in=180] to (a3cn);
+            \node[rotate=18] at ($(a2n)!0.55!(a3cn) + (-0.2,0.22)$) {crying};
+            \draw[->] (a2n) [out=0,in=180] to (a3nn);
+            \node[rotate=-20] at ($(a2n)!0.55!(a3nn) - (0.2,0.2)$) {quiet};
+        \end{tikzpicture}
+        \end{center}
+    
+
+\end{frame}
+
+
+\begin{frame}{Alpha vector policies}
+    An \alert{alpha vector} $\vec \alpha$ defines a hyperplane over the belief space representing the value of executing a conditional plan $U(\vec b) = \vec \alpha^\transpose \vec b$
+
+    \begin{tikzpicture}[]
+        \begin{axis}[
+          width=6cm, xmin=0, xmax=1, xlabel={$P(\text{hungry})$}, ylabel={$U(\vect b)$}, legend pos = {outer north east}
+        ]
+        
+        \addplot+[
+          solid_line, pastelRed
+        ] coordinates {
+          (0.0, -3.1744349999999995)
+          (1.0, -25.192)
+        };
+        \addlegendentry{{}{given plan}}
+        
+        \addplot+[
+          solid_line, pastelGreen
+        ] coordinates {
+          (0.0, -2.438999999999999)
+          (1.0, -27.1)
+        };
+        \addlegendentry{{}{always ignore}}
+        
+        \addplot+[
+          solid_line, pastelBlue
+        ] coordinates {
+          (0.0, -13.55)
+          (1.0, -23.55)
+        };
+        \addlegendentry{{}{always feed}}
+        
+        \end{axis}
+    \end{tikzpicture}
+        
+
+
+    \begin{itemize}
+        \item  $U(b) = \max_{\vec \alpha \in \Gamma} \vec \alpha^\transpose \vec b$, where $\Gamma$ contains alpha vectors 
+        \item $\pi(b) = \argmax_a [R(b,a) + \gamma \sum_o P(o \mid b, a)  U(\text{Update}(b, a, o))] $
+    \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Tagged alpha vector policies}
+    A \alert{tagged alpha vector} is just an alpha vector labeled with the root action of the corresponding conditional plan
+
+    \begin{tikzpicture}[]
+        \begin{axis}[
+          width=6cm, xmin=0, xmax=1, xlabel={$P(\text{hungry})$}, ylabel={$U(\vect b)$}, legend pos = {outer north east}
+        ]
+        
+        \addplot+[
+          solid_line, pastelRed
+        ] coordinates {
+          (0.0, -3.1744349999999995)
+          (1.0, -25.192)
+        };
+        \addlegendentry{{}{ignore}}
+        
+        \addplot+[
+          solid_line, pastelGreen
+        ] coordinates {
+          (0.0, -2.438999999999999)
+          (1.0, -27.1)
+        };
+        \addlegendentry{{}{ignore}}
+        
+        \addplot+[
+          solid_line, pastelBlue
+        ] coordinates {
+          (0.0, -13.55)
+          (1.0, -23.55)
+        };
+        \addlegendentry{{}{feed}}
+        
+        \end{axis}
+    \end{tikzpicture}
+
+    Given our current belief, we find the maximizing alpha vector and execute the corresponding action
+\end{frame}
+
+
+\begin{frame}{Finite state controller policies}
+    \begin{center}
+    \begin{tikzpicture}[x=1cm, y=1cm]
+        \node[minimum size=0.75cm, draw=black, fill=white, circle] (x1) {$x^1$};
+        \node[minimum size=0.75cm, draw=black, fill=white, circle, right=2cm of x1] (x2) {$x^2$};
+        \draw[->] (x1) to[bend left] node[above]{\small $o = \text{crying}$} (x2);
+        \draw[->] (x2) to[bend left] node[below]{\small $o = \text{quiet}$} (x1);
+        \path (x1) edge [loop left] node {\small $o = \text{quiet}$} (x2);
+        \path (x2) edge [loop right] node {\small $o = \text{crying}$} (x2);
+        \node[below left=0 and 0 of x1] {\small $\psi(\text{ignore} \mid x^1) = 1$};
+        \node[below right=0 and 0 of x2] {\small $\psi(\text{feed} \mid x^2) = 1$};
+    \end{tikzpicture}
+    \end{center}
+    \begin{itemize}
+        \item Actions are associated with nodes
+        \item Observations are associated with edges
+        \item Associations can be stochastic
+    \end{itemize}
+\end{frame}
+
+\pomdpland{5.4}{6.2}{9}{7.6}
+
+\begin{frame}{QMDP upper bound}
+    \begin{itemize}
+        \item Assumes all uncertainty vanishes after first action
+        \item Provides an upper bound
+        \item Can be represented using one alpha vector per action
+    \end{itemize}
+
+    \input{fig/su_offline_qmdp.tex}
+    
+\end{frame}
+
+\begin{frame}{FIB upper bownd}
+    \begin{itemize}
+        \item Upper bound no less tight (and generally tighter) than QMDP
+        \item One alpha vector per action
+        \item Uses observation model in calculations
+        \item More expensive than QMDP, but tightness may be worthwhile
+    \end{itemize}
+
+    \input{fig/su_offline_fib.tex}    
+\end{frame}
+
+\begin{frame}{Sawtooth upper bound}
+    Store a set of belief-utility pairs:
+    \[
+    V = \curly{(b_1, U(b_1)), \ldots, (b_m, U(b_m))}
+    \]
+    with the requirement that $V$ contains all the standard basis beliefs:
+    \[
+    E = \{e_1 = [1, 0, \ldots, 0], \ldots, e_n = [0, 0, \ldots, 1]\]
+    \begin{center}
+        \input{fig/su_online_sawtooth_crying_margin.tex}        
+    \end{center}
+\end{frame}
+
+\begin{frame}{BAWS lower bound}
+    BAWS: best-action from worst state forever \[ r_\text{baws} = \max_a \sum_{k=1}^\infty \gamma^{k-1} \min_s R(s,a) = \frac{1}{1-\gamma} \max_a \min_s R(s,a) \]
+    Generally pretty loose
+\end{frame}
+
+\begin{frame}{Blind lower bound}
+    Use alpha vectors corresponding to committing to different actions forever %\[ \alpha_a^{(k+1)}(s) = R(s,a) + \gamma \sum_{s'} T(s' \mid s, a) \alpha_{a}^{(k)}(s') \]
+
+    \begin{center}
+        \input{fig/su_offline_lowerbound_methods.tex}
+    \end{center}
+    
+\end{frame}
+
+\pomdpland{5}{4.3}{9.4}{6.3}
+
+\begin{frame}{Value iteration}
+    \begin{enumerate}
+        \item Construct all one-step plans
+        \item Prune dominated one-step plans based on alpha vectors
+        \item Create two-step plans by using remaining one-step plans as subplans
+        \item Prune dominated two-step plans
+        \item etc.
+    \end{enumerate}
+
+    \begin{columns}
+        \begin{column}{5cm}
+            \begin{center}
+                \begin{tikzpicture}[>=stealth,xscale=0.75]
+                    \node (a) at (0,0) {$a$};
+                    \node[anchor=west] (ao1) at (4, 0.75) {subplan};
+                    \node[anchor=west] (ao2) at (4, 0) {subplan};
+                    \node[anchor=west] (aodots) at (4,-0.75) {\hphantom{sub}$\vdots$};
+                    \node[anchor=west] (aoO) at (4,-1.5) {subplan};
+                    \draw[->] (a) [out=0,in=180] to (ao1);
+                    \node at ($(a)!0.55!(ao1) + (0,0.4)$) {$o_1$};
+                    \draw[->] (a) [out=0,in=180] to (ao2);
+                    \node at ($(a)!0.55!(ao2) + (0,0.2)$) {$o_2$};
+                    \draw[->] (a) [out=0,in=180] to (aoO);
+                    \node at ($(a)!0.55!(aoO) + (0,0.0)$) {$o_{\card{\mathcal{O}}}$};
+                \end{tikzpicture}            
+            \end{center}
+                    
+        \end{column}
+        \begin{column}{5cm}
+            \input{fig/su_exact_crying_baby_all_two_step_plans.tex}            
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\begin{frame}{Point-based value iteration}
+\begin{itemize}
+    \item Compute $m$ different alpha vectors $\Gamma = \curly*{\vect \alpha_1, \ldots, \vect \alpha_m}$, each associated with different belief points $B = \curly*{\vect b_1, \ldots, \vect b_m}$
+    \item Each iteration ensures $\Gamma$ preserves a lower bound
+    \item Iteratively update the alpha vectors using \alert{point-based backup} at their corresponding belief states \[\vec \alpha = \text{Backup}(\Gamma, \vec b)\]
+    \item Many variations of this basic approach
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Triangulated value iteration}
+        \resizebox{\columnwidth}{!}{
+        \begin{tabular}{cc}
+        \input{fig/su_offline_lovejoy_policy} & \input{fig/su_offline_lovejoy_utility}
+        \end{tabular}
+        }
+\end{frame}
+
+
+\pomdpland{7.5}{2.4}{10.9}{5.6}
+
+\begin{frame}{Lookahead with rollouts}
+    \begin{itemize}
+        \item Try out each action and estimate reward by running a \alert{rollout} simulation; pick the best one
+        \item The rollout simulation just runs some heuristic policy
+        \item Quality depends on rollout policy
+        \item Super simple and fast
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}{Forward search}
+    \begin{itemize}
+        \item Consider every possible sequence of actions and observations
+        \item Pick the best first action, and replan
+    \end{itemize}
+
+    \begin{center}
+	\begin{tikzpicture}[>=stealth, x=0.5cm, y=0.5cm]
+		\def\aX{2}
+		\def\aY{2.6}
+		\def\oX{2}
+		\def\oY{1.25}
+		\def\aXtwo{2}
+		\def\aYtwo{0.55}
+		\def\oXtwo{2}
+		\def\oYtwo{0.4}
+		\def\vdotY{0.1}
+		\def\topY{5.0}
+		\def\dXshade{0.2}
+		\def\dYshadeLabel{0.35}
+		\def\dXdots{-0.2}
+
+	   	\node (b) at (0,0) {$b$};
+
+	   	\coordinate (a1) at ($(b) + (\aX,\aY)$);
+	    	\coordinate (o11) at ($(a1) + (\oX, \oY)$);
+	    		\coordinate (a111) at ($(o11) + (\aXtwo,\aYtwo)$);
+	    			\coordinate (o1111) at ($(a111) + (\oXtwo, \oYtwo)$);
+	    			\node at ($(a111) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	    			\coordinate (o1112) at ($(a111) + (\oXtwo,-\oYtwo)$);
+	    		\node at ($(o11) + (\aXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	    		\coordinate (a112) at ($(o11) + (\aXtwo,-\aYtwo)$);
+	    			\coordinate (o1121) at ($(a112) + (\oXtwo, \oYtwo)$);
+	    			\node at ($(a112) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	    			\coordinate (o1122) at ($(a112) + (\oXtwo,-\oYtwo)$);
+	    	\node at ($(a1) + (\oX+\dXdots,\vdotY)$) {$\vdots$};
+	    	\coordinate (o12) at ($(a1) + (\oX,-\oY)$);
+	    		\coordinate (a121) at ($(o12) + (\aXtwo,\aYtwo)$);
+	    			\coordinate (o1211) at ($(a121) + (\oXtwo, \oYtwo)$);
+	    			\node at ($(a121) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	    			\coordinate (o1212) at ($(a121) + (\oXtwo,-\oYtwo)$);
+	    		\node at ($(o12) + (\aXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	    		\coordinate (a122) at ($(o12) + (\aXtwo,-\aYtwo)$);
+	    			\coordinate (o1221) at ($(a122) + (\oXtwo, \oYtwo)$);
+	    			\node at ($(a122) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	    			\coordinate (o1222) at ($(a122) + (\oXtwo,-\oYtwo)$);
+
+	   	\node at ($(b) + (\aX+\dXdots,\vdotY)$) {$\vdots$};
+
+	   	\coordinate (a2) at ($(b) + (\aX,-\aY)$);
+	   		\coordinate (o21) at ($(a2) + (\oX, \oY)$);
+	   			\coordinate (a211) at ($(o21) + (\aXtwo,\aYtwo)$);
+	   				\coordinate (o2111) at ($(a211) + (\oXtwo, \oYtwo)$);
+	   				\node at ($(a211) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	   				\coordinate (o2112) at ($(a211) + (\oXtwo,-\oYtwo)$);
+	   			\node at ($(o21) + (\aXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	   			\coordinate (a212) at ($(o21) + (\aXtwo,-\aYtwo)$);
+	   				\coordinate (o2121) at ($(a212) + (\oXtwo, \oYtwo)$);
+	   				\node at ($(a212) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	   				\coordinate (o2122) at ($(a212) + (\oXtwo,-\oYtwo)$);
+	   		\node at ($(a2) + (\oX+\dXdots,\vdotY)$) {$\vdots$};
+	   		\coordinate (o22) at ($(a2) + (\oX,-\oY)$);
+	   			\coordinate (a221) at ($(o22) + (\aXtwo,\aYtwo)$);
+	   				\coordinate (o2211) at ($(a221) + (\oXtwo, \oYtwo)$);
+	   				\node at ($(a221) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	   				\coordinate (o2212) at ($(a221) + (\oXtwo,-\oYtwo)$);
+	   			\node at ($(o22) + (\aXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	   			\coordinate (a222) at ($(o22) + (\aXtwo,-\aYtwo)$);
+	   				\coordinate (o2221) at ($(a222) + (\oXtwo, \oYtwo)$);
+	   				\node at ($(a222) + (\oXtwo+\dXdots,\vdotY)$) {$\vdots$};
+	   				\coordinate (o2222) at ($(a222) + (\oXtwo,-\oYtwo)$);
+
+	   	\node at (\aX/2,\topY+\dYshadeLabel) {\textcolor{pastelBlue}{$a^{(1)}$}};
+	   	\fill[pastelBlue, opacity=0.3] (\dXshade,-\topY) rectangle (\aX,\topY);
+	   	\node at (\aX+\oX/2,\topY+\dYshadeLabel) {\textcolor{pastelRed}{$o^{(1)}$}};
+	   	\fill[pastelRed, opacity=0.3] (\dXshade+\aX,-\topY) rectangle (\aX+\oX,\topY);
+	   	\node at (\aX+\oX+\aXtwo/2,\topY+\dYshadeLabel) {\textcolor{pastelBlue}{$a^{(2)}$}};
+	   	\fill[pastelBlue, opacity=0.3] (\dXshade+\aX+\oX,-\topY) rectangle (\aX+\oX+\aXtwo,\topY);
+	   	\node at (\aX+\oX+\aXtwo+\oXtwo/2,\topY+\dYshadeLabel) {\textcolor{pastelRed}{$o^{(2)}$}};
+	   	\fill[pastelRed, opacity=0.3] (\dXshade+\aX+\oX+\aXtwo,-\topY) rectangle (\aX+\oX+\aXtwo+\oXtwo,\topY);
+
+	   	\draw (b) [out=0,in=180] to (a1);
+	   		\draw (a1) [out=0,in=180] to (o11);
+	   			\draw (o11) [out=0,in=180] to (a111);
+	   				\draw (a111) [out=0,in=180] to (o1111);
+	   				\draw (a111) [out=0,in=180] to (o1112);
+	   			\draw (o11) [out=0,in=180] to (a112);
+	   				\draw (a112) [out=0,in=180] to (o1121);
+	   				\draw (a112) [out=0,in=180] to (o1122);
+	   		\draw (a1) [out=0,in=180] to (o12);
+	   			\draw (o12) [out=0,in=180] to (a121);
+	   				\draw (a121) [out=0,in=180] to (o1211);
+	   				\draw (a121) [out=0,in=180] to (o1212);
+	   			\draw (o12) [out=0,in=180] to (a122);
+	   				\draw (a122) [out=0,in=180] to (o1221);
+	   				\draw (a122) [out=0,in=180] to (o1222);
+
+	   	\draw (b) [out=0,in=180] to (a2);
+	   	    \draw (a2) [out=0,in=180] to (o21);
+	   	    	\draw (o21) [out=0,in=180] to (a211);
+	   	    		\draw (a211) [out=0,in=180] to (o2111);
+	   	    		\draw (a211) [out=0,in=180] to (o2112);
+	   	    	\draw (o21) [out=0,in=180] to (a212);
+	   	    		\draw (a212) [out=0,in=180] to (o2121);
+	   	    		\draw (a212) [out=0,in=180] to (o2122);
+	   		\draw (a2) [out=0,in=180] to (o22);
+	   			\draw (o22) [out=0,in=180] to (a221);
+	   				\draw (a221) [out=0,in=180] to (o2211);
+	   				\draw (a221) [out=0,in=180] to (o2212);
+	   			\draw (o22) [out=0,in=180] to (a222);
+	   				\draw (a222) [out=0,in=180] to (o2221);
+	   				\draw (a222) [out=0,in=180] to (o2222);
+
+	\end{tikzpicture}    
+    \end{center}    
+\end{frame}
+
+\begin{frame}{Branch and bound}
+    \begin{itemize}
+        \item  Use upper bound and lower bounds on $U(b)$ to prune space
+        \item Worst case, as expensive as forward search
+        \item In practice, much faster than forward search
+        \item Preserves optimality (up to horizon)
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Monte Carlo tree search}
+    \resizebox{\columnwidth}{!}{
+    \input{fig/su_online_mcts_search_tree.tex}
+    }
+\end{frame}
+
+\begin{frame}{Model predictive control}
+    Optimize sequence of actions, and replan at every step
+    \begin{center}
+        \resizebox{0.6\columnwidth}{!}{
+            \input{fig/seq_mpc.tex}
+        }            
+    \end{center}
+\end{frame}
+
+\pomdpland{3.5}{1.8}{5.9}{3.3}
+
+\begin{frame}{Reinforcement learning}
+    \begin{itemize}
+        \item Learn a good policy by interacting with the real world or simulator
+        \item Often requires many simulation steps
+        \item Can use neural network to represent value function, use this to drive exploration
+        \item Different approaches for updating value function, exploring actions
+        \item State-of-the-art for some problems
+    \end{itemize}    
+\end{frame}
+
+\pomdpland{3.5}{4}{5.9}{5.6}
+
+\begin{frame}{Reinforcement learning}
+    \begin{itemize}
+        \item Can directly optimize parameters of a policy
+        \item Gradient-based optimization approaches tend to be more efficient when optimizing over many parameters
+        \item Evaluation of objective function involves simulating policy
+        \item Can use a representation of policy to drive optimization (e.g., AlphaZero and other actor-critic methods)
+    \end{itemize}    
+\end{frame}
+
+\pomdpland{-0.2}{3.7}{3.9}{5.5}
+
+
+
+\begin{frame}{Policy evaluation}
+    \resizebox{\columnwidth}{!}{
+        $U(x, s) = \sum_a \psi(a \mid x) \paren*{R(s, a) + \gamma \sum_{s'} T(s' \mid s, a) \sum_o O(o \mid a, s') \sum_{x'} \eta(x' \mid x, a, o) U(x', s')}$
+        }  
+
+        \vspace{1ex}
+
+        \begin{itemize}
+            \item $x$ node in controller
+            \item $\psi(a \mid x)$ probability of taking action $a$ in node $x$
+            \item $\eta(x' \mid x, a, o)$ probability of transitioning to node $x'$ give we are in node $x$, take action $a$, and observe $o$
+        \end{itemize}
+
+        Given a controller and initial belief $b$, select initial node $x^* = \argmax_x \sum_s U(x, s)b(s)$
+\end{frame}
+
+\begin{frame}{Policy iteration}
+
+    \begin{enumerate}
+        \item Start with any initial controller
+        \item Evaluate controller
+        \item Improve policy by adding new nodes and edges
+        \item Prune useless nodes
+        \item Go to step 2
+    \end{enumerate}
+\end{frame}
+
+
+
+\begin{frame}{Nonlinear programming}
+    % \resizebox{\columnwidth}{!}{
+    \begin{footnotesize}    
+    \begin{maxi}
+        {\scriptstyle U, \psi, \eta}{\sum_s b(s) U(x^1, s)}{}{}
+        \addConstraint{U(x, s) = \sum_a \psi(a \mid x) ( R(s, a) + \gamma \sum_{s'} T(s' \mid s, a) \sum_o \ldots}
+        \addConstraint{\hspace{10cm}\text{ for all } x, s}
+        \addConstraint{\psi(a \mid x) \geq 0 \enspace \text{ for all }  x, a}
+        \addConstraint{\sum_a \psi(a \mid x) = 1 \enspace \text{ for all } x}
+        \addConstraint{\eta(x' \mid x, a, o) \geq 0 \enspace \text{ for all } x, a, o, x'}
+        \addConstraint{\sum_{x'} \eta(x' \mid x, a, o) = 1 \enspace \text{ for all } x, a, o}
+    \end{maxi}  
+\end{footnotesize}    
+        % }  
+\end{frame}
+
+
+\begin{frame}
+    \begin{center}
+        \includegraphics[width=0.5\columnwidth]{fig/book.jpg}
+        \url{algorithmsbook.com/decisionmaking}
+    \end{center}    
+\end{frame}
+
+\end{document}
